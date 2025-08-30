@@ -1,3 +1,3 @@
-# WXT + React
+# Slasher
 
-This template should help get you started developing with React in WXT.
+Slash commands everywhere!
