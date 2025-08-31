@@ -4,6 +4,7 @@ import { CommandRepository } from "../utils/CommandRepository";
 import { CommandEventHandler } from "../utils/CommandEventHandler";
 import { CommandList, CommandEntry } from "../types/CommandEntry";
 
+
 const commandRepository = new CommandRepository();
 const commandEventHandler = new CommandEventHandler();
 
@@ -138,8 +139,11 @@ function App() {
   return (
     <div className="w-[450px] h-[600px] bg-gradient-to-br from-stone-950 to-stone-800 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="bg-stone-900 border-b border-stone-700 p-4 shadow-sm">
-        <div className="flex items-center gap-3">
+      <div className="bg-stone-900 border-b border-stone-700 pt-4 pb-4 pl-2 shadow-sm">
+        <div className="flex items-center">
+          <div>
+            <img src="/icon/128.png" alt="Slasher Logo" className="h-14" />
+          </div>
           <div>
             <h1 className="text-lg font-semibold text-stone-100"><i>Slasher</i></h1>
             <p className="text-xs text-stone-400">Slash commands everywhere!</p>
