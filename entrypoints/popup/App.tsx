@@ -161,7 +161,7 @@ function App() {
               setForm({ title: "", command: "", description: "", replacement: "", url: "" });
             }
           }}
-          className="w-full bg-gradient-to-r from-rose-600 to-orange-500 hover:from-rose-500 hover:to-orange-400 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-transtone-y-0.5 flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-rose-600 to-orange-500 hover:from-rose-500 hover:to-orange-400 text-white font-medium text-xs py-3 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
         >
           Add New Slash Command
         </button>

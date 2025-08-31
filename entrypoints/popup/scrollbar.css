@@ -1,12 +1,4 @@
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #1c1917;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #57534e;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #57534e #1c1917;
 }
