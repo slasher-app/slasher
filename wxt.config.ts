@@ -8,7 +8,6 @@ export default defineConfig({
   vite: () => ({
     plugins: [tailwindcss(), nodePolyfills()]
   }),
-  manifestVersion: 3,
   manifest: {
     permissions: ["storage", "tabs"],
   },
