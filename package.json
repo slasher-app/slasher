@@ -11,6 +11,7 @@
     "build:firefox": "wxt build -b firefox",
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
+    "test": "bun run build && bun run build:firefox && bunx playwright test",
     "compile": "tsc --noEmit",
     "postinstall": "wxt prepare"
   },
@@ -24,6 +25,7 @@
     "tailwindcss": "^4.1.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@types/chrome": "^0.0.280",
     "@types/micromatch": "^4.0.9",
     "@types/react": "^19.1.11",
