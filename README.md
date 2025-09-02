@@ -17,8 +17,9 @@
 
 <div align="center">
   <br />
-  <img src="https://img.shields.io/github/actions/workflow/status/peterphmikkelsen/slasher/playwright.yaml?logo=github&label=tests" />
-  <br />
+
+  [![](https://github.com/peterphmikkelsen/slasher/actions/workflows/playwright.yaml/badge.svg)](https://github.com/peterphmikkelsen/slasher/actions/workflows/playwright.yaml)
+  
 </div>
 
 ## What is Slasher?
