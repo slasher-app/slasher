@@ -15,6 +15,12 @@
   <br />
 </div>
 
+<div align="center">
+  <br />
+  <img src="https://img.shields.io/github/actions/workflow/status/peterphmikkelsen/slasher/playwright.yaml?logo=github&label=tests" />
+  <br />
+</div>
+
 ## What is Slasher?
 
 Slasher is a web extension that allows users to easily create and manage slash commands! It provides a simple and intuitive interface for creating and managing slash commands, making it easy to add powerful functionality to any website of your choice.
