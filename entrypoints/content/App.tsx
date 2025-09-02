@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { CommandListView } from "./CommandList";
 import { Command } from "./Command";
 import { offset } from "caret-pos";
@@ -15,6 +15,7 @@ interface LayoutState {
   visible: boolean;
   selectedIndex: number;
   activeElement: HTMLInputElement | HTMLTextAreaElement | null;
+  search: string;
 }
 
 const useCommands = () => {
@@ -57,6 +58,7 @@ const useSlashCommandDetection = () => {
     visible: false,
     selectedIndex: 0,
     activeElement: null,
+    search: ""
   });
 
   const extractSlashCommand = (value: string): { found: boolean; command: string } => {
@@ -97,11 +99,11 @@ const useSlashCommandDetection = () => {
 
     // if target is not valid or not focused, don't show the dropdown
     if (!target || !isValidInput(target) || target !== document.activeElement) {
-      setState(prev => ({ ...prev, visible: false }));
+      setState(prev => ({ ...prev, visible: false, search: "" }));
       return;
     }
 
-    const { found, command: _ } = extractSlashCommand(target.value);
+    const { found, command } = extractSlashCommand(target.value);
 
     if (found) {
       const position = updatePosition(target);
@@ -111,9 +113,10 @@ const useSlashCommandDetection = () => {
         visible: true,
         activeElement: target,
         selectedIndex: 0,
+        search: command
       }));
     } else {
-      setState(prev => ({ ...prev, visible: false }));
+      setState(prev => ({ ...prev, visible: false, search: "" }));
     }
   };
 
@@ -172,9 +175,21 @@ export const App = () => {
   const commands = useCommands();
   const { state, setState } = useSlashCommandDetection();
 
+  const searchedCommands = useMemo(() => {
+      if (!state.search.trim()) {
+        return commands;
+      }
+
+      const query = state.search.toLowerCase();
+      return commands.filter(({ command }) =>
+        command.command.toLowerCase().startsWith(query) ||
+        command.title.toLowerCase().includes(query)
+      );
+    }, [commands, state.search]);
+
   useEffect(() => {
     setState(prev => ({ ...prev, selectedIndex: 0 }));
-  }, [commands.length]);
+  }, [searchedCommands.length]);
 
   const setCursorPosition = (element: HTMLInputElement | HTMLTextAreaElement, position: number) => {
     try {
@@ -230,11 +245,12 @@ export const App = () => {
     setState(prev => ({
       ...prev,
       visible: false,
-      selectedIndex: 0
+      selectedIndex: 0,
+      search: ""
     }));
   };
 
-  useKeyboardNavigation(state.visible, commands, state.selectedIndex, setState, handleSelect);
+  useKeyboardNavigation(state.visible, searchedCommands, state.selectedIndex, setState, handleSelect);
 
-  return <CommandListView commands={commands} x={state.position.x} y={state.position.y} visible={state.visible} selectedIndex={state.selectedIndex} onSelect={handleSelect} />;
+  return <CommandListView commands={searchedCommands} x={state.position.x} y={state.position.y} visible={state.visible} selectedIndex={state.selectedIndex} onSelect={handleSelect} />;
 };
