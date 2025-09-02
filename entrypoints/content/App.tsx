@@ -10,12 +10,14 @@ import { isMatch } from "micromatch";
 const commandRepository = new CommandRepository();
 const commandEventHandler = new CommandEventHandler();
 
-export const App = () => {
+interface LayoutState {
+  position: { x: number; y: number };
+  visible: boolean;
+  selectedIndex: number;
+  activeElement: HTMLInputElement | HTMLTextAreaElement | null;
+}
 
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [visible, setVisible] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [activeElement, setActiveElement] = useState<HTMLInputElement | HTMLTextAreaElement | null>(null);
+const useCommands = () => {
   const [commands, setCommands] = useState<CommandList>([]);
 
   const normalizePattern = (pattern: string) => {
@@ -46,79 +48,193 @@ export const App = () => {
     };
   }, []);
 
+  return commands;
+};
+
+const useSlashCommandDetection = () => {
+  const [state, setState] = useState<LayoutState>({
+    position: { x: 0, y: 0 },
+    visible: false,
+    selectedIndex: 0,
+    activeElement: null,
+  });
+
+  const extractSlashCommand = (value: string): { found: boolean; command: string } => {
+    const slashIndex = value.lastIndexOf("/");
+    if (slashIndex === -1) {
+      return { found: false, command: "" };
+    }
+
+    const afterSlash = value.slice(slashIndex + 1);
+    const match = afterSlash.match(/^(\S*)/);
+    const command = match?.[1] || "";
+
+    return { found: true, command: command };
+  };
+
+  const updatePosition = (element: HTMLInputElement | HTMLTextAreaElement) => {
+    const { left, top } = offset(element);
+    return {
+      x: left + window.scrollX,
+      y: top + window.scrollY + 20,
+    };
+  };
+
+  const handleInput = (event: Event) => {
+    const target = event.target as HTMLElement;
+
+    const isValidInput = (element: HTMLElement): element is HTMLInputElement | HTMLTextAreaElement => {
+      switch (element.tagName) {
+        case "TEXTAREA": return true;
+        case "INPUT": {
+          const inputElement = element as HTMLInputElement;
+          const supportedTypes = ["text", "search", "url", "email", "tel"];
+          return supportedTypes.includes(inputElement.type.toLowerCase());
+        };
+        default: return false;
+      }
+    };
+
+    // if target is not valid or not focused, don't show the dropdown
+    if (!target || !isValidInput(target) || target !== document.activeElement) {
+      setState(prev => ({ ...prev, visible: false }));
+      return;
+    }
+
+    const { found, command: _ } = extractSlashCommand(target.value);
+
+    if (found) {
+      const position = updatePosition(target);
+      setState(prev => ({
+        ...prev,
+        position,
+        visible: true,
+        activeElement: target,
+        selectedIndex: 0,
+      }));
+    } else {
+      setState(prev => ({ ...prev, visible: false }));
+    }
+  };
+
   useEffect(() => {
-    const handleInput = (e: Event) => {
-      const target = e.target as HTMLInputElement | HTMLTextAreaElement;
+    document.addEventListener("input", handleInput);
+    return () => document.removeEventListener("input", handleInput);
+  }, []);
 
-      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) {
-        const value = target.value;
-        const slashIndex = value.lastIndexOf("/");
+  return { state, setState };
+};
 
-        if (slashIndex !== -1 && document.activeElement === target && commands.length > 0) {
-          const { left, top } = offset(target);
-          setPosition({
-            x: left + window.scrollX,
-            y: top + window.scrollY + 20, // small offset below caret
-          });
+const useKeyboardNavigation = (
+  visible: boolean,
+  filteredCommands: CommandList,
+  selectedIndex: number,
+  setState: React.Dispatch<React.SetStateAction<LayoutState>>,
+  onSelect: (command: Command) => void
+) => {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (!visible || filteredCommands.length === 0) return;
 
-          setVisible(true);
-          setActiveElement(target);
-        } else {
-          setVisible(false);
+    const { key } = event;
+
+    switch (key) {
+      case "ArrowDown":
+        event.preventDefault();
+        setState(prev => ({ ...prev, selectedIndex: (prev.selectedIndex + 1) % filteredCommands.length }));
+        break;
+
+      case "ArrowUp":
+        event.preventDefault();
+        setState(prev => ({ ...prev, selectedIndex: (prev.selectedIndex - 1 + filteredCommands.length) % filteredCommands.length }));
+        break;
+
+      case "Enter":
+        event.preventDefault();
+        if (filteredCommands[selectedIndex]) {
+          onSelect(filteredCommands[selectedIndex].command);
+        }
+        break;
+
+      case "Escape":
+        setState(prev => ({ ...prev, visible: false }));
+        break;
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [visible, filteredCommands, selectedIndex, setState, onSelect]);
+};
+
+
+export const App = () => {
+  const commands = useCommands();
+  const { state, setState } = useSlashCommandDetection();
+
+  useEffect(() => {
+    setState(prev => ({ ...prev, selectedIndex: 0 }));
+  }, [commands.length]);
+
+  const setCursorPosition = (element: HTMLInputElement | HTMLTextAreaElement, position: number) => {
+    try {
+      // TextArea elements always support selection
+      if (element instanceof HTMLTextAreaElement) {
+        element.setSelectionRange(position, position);
+        element.focus();
+        return;
+      }
+
+      if (element instanceof HTMLInputElement) {
+        const inputType = element.type.toLowerCase();
+        const selectionSupportedTypes = ["text", "search", "password", "tel"];
+
+        if (!selectionSupportedTypes.includes(inputType)) {
+          // For input types like 'email', 'url', etc., just focus without setting cursor
+          element.focus();
+          return;
         }
       }
-    };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!visible) return;
-
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev + 1) % commands.length);
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev - 1 + commands.length) % commands.length);
-      } else if (e.key === "Enter") {
-        e.preventDefault();
-        handleSelect(commands[selectedIndex].command);
-      } else if (e.key === "Escape") {
-        setVisible(false);
-      }
-    };
-
-    addEventListener("input", handleInput);
-    addEventListener("keydown", handleKeyDown);
-    return () => {
-      removeEventListener("input", handleInput);
-      removeEventListener("keydown", handleKeyDown);
-    };
-  }, [visible, selectedIndex, activeElement, commands]);
+      // Set cursor position for supported elements
+      element.setSelectionRange(position, position);
+      element.focus();
+    } catch (error) {
+      console.warn("Failed to set cursor position:", error);
+      element.focus();
+    }
+  };
 
   const handleSelect = (command: Command) => {
+    const { activeElement } = state;
     if (!activeElement) return;
 
-    // TODO: Fix this for contenteditable elements
     const value = activeElement.value;
     const slashIndex = value.lastIndexOf("/");
 
     const cursorPlaceholder = "%caret%";
-    const cursorOffsetInInsert = command.replacement.indexOf(cursorPlaceholder);
-
-    const cleanedInsert = command.replacement.replace(cursorPlaceholder, "");
+    const cursorOffsetInReplacement = command.replacement.indexOf(cursorPlaceholder);
+    const cleanedReplacement = command.replacement.replace(cursorPlaceholder, "");
 
     const beforeSlash = value.slice(0, slashIndex);
-    const afterCommand = value.slice(slashIndex).replace(/^\/\S*/, ""); // skip rest of slash command
-    const newValue = beforeSlash + cleanedInsert + afterCommand;
+    const afterCommand = value.slice(slashIndex).replace(/^\/\S*/, "");
+    const newValue = beforeSlash + cleanedReplacement + afterCommand;
 
-    const cursorPos = cursorOffsetInInsert !== -1 ? beforeSlash.length + cursorOffsetInInsert : (beforeSlash + cleanedInsert).length;
+    const cursorPosition = cursorOffsetInReplacement !== -1
+      ? beforeSlash.length + cursorOffsetInReplacement
+      : (beforeSlash + cleanedReplacement).length;
+
     activeElement.value = newValue;
+    setCursorPosition(activeElement, cursorPosition);
 
-    activeElement.setSelectionRange(cursorPos, cursorPos);
-    activeElement.focus();
-
-    setVisible(false);
-    setSelectedIndex(0);
+    setState(prev => ({
+      ...prev,
+      visible: false,
+      selectedIndex: 0
+    }));
   };
 
-  return <CommandListView commands={commands} x={position.x} y={position.y} visible={visible} selectedIndex={selectedIndex} onSelect={handleSelect} />;
+  useKeyboardNavigation(state.visible, commands, state.selectedIndex, setState, handleSelect);
+
+  return <CommandListView commands={commands} x={state.position.x} y={state.position.y} visible={state.visible} selectedIndex={state.selectedIndex} onSelect={handleSelect} />;
 };
