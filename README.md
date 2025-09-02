@@ -7,11 +7,11 @@
 </div>
 
 <div align="center">
-  <img height="50" alt="firefox" src="https://github.com/user-attachments/assets/1da46598-4861-435f-8938-bf41fea2e5db" />
+  <img height="50" alt="firefox" src="assets/firefox.png" />
   &emsp;
-  <img height="50" alt="chrome" src="https://github.com/user-attachments/assets/17bdf15e-95e0-4be4-860e-29133407af87" />
+  <img height="50" alt="chrome" src="assets/chrome.png" />
   &emsp;
-  <img height="50" alt="edge" src="https://github.com/user-attachments/assets/0e5bcb9c-b1ad-4f0e-ab2a-5127600914b6" />
+  <img height="50" alt="edge" src="assets/edge.png" />
   <br />
 </div>
 
