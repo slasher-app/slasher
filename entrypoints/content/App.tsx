@@ -4,6 +4,7 @@ import { Command } from "./Command";
 import { offset } from "caret-pos";
 import { CommandRepository } from "../utils/CommandRepository";
 import { CommandEventHandler } from "../utils/CommandEventHandler";
+import { Theme, detectTheme } from "../utils/ThemeDetector";
 import { CommandList } from "../types/CommandEntry";
 import { isMatch } from "micromatch";
 
@@ -51,6 +52,37 @@ const useCommands = () => {
 
   return commands;
 };
+
+const useThemeDetection = (): Theme => {
+  const [theme, setTheme] = useState<Theme>(detectTheme());
+
+  useEffect(() => {
+    const handleThemeChange = () => {
+      const currentTheme = detectTheme();
+      setTheme(currentTheme);
+    };
+
+    const observer = new MutationObserver(handleThemeChange);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "data-theme", "style"],
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["class", "data-theme", "style"],
+    });
+
+    const darkMedia = window.matchMedia("(prefers-color-scheme: dark)");
+    darkMedia.addEventListener("change", handleThemeChange);
+
+    return () => {
+      observer.disconnect();
+      darkMedia.removeEventListener("change", handleThemeChange);
+    };
+  }, []);
+
+  return theme;
+}
 
 const useSlashCommandDetection = () => {
   const [state, setState] = useState<LayoutState>({
@@ -174,6 +206,7 @@ const useKeyboardNavigation = (
 export const App = () => {
   const commands = useCommands();
   const { state, setState } = useSlashCommandDetection();
+  const theme = useThemeDetection();
 
   const searchedCommands = useMemo(() => {
       if (!state.search.trim()) {
@@ -252,5 +285,5 @@ export const App = () => {
 
   useKeyboardNavigation(state.visible, searchedCommands, state.selectedIndex, setState, handleSelect);
 
-  return <CommandListView commands={searchedCommands} x={state.position.x} y={state.position.y} visible={state.visible} selectedIndex={state.selectedIndex} onSelect={handleSelect} />;
+  return <CommandListView theme={theme} commands={searchedCommands} x={state.position.x} y={state.position.y} visible={state.visible} selectedIndex={state.selectedIndex} onSelect={handleSelect} />;
 };
