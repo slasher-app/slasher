@@ -15,7 +15,7 @@ interface LayoutState {
   position: { x: number; y: number };
   visible: boolean;
   selectedIndex: number;
-  activeElement: HTMLInputElement | HTMLTextAreaElement | null;
+  activeElement: HTMLInputElement | HTMLTextAreaElement | HTMLElement | null;
   search: string;
 }
 
@@ -106,7 +106,7 @@ const useSlashCommandDetection = () => {
     return { found: true, command: command };
   };
 
-  const updatePosition = (element: HTMLInputElement | HTMLTextAreaElement) => {
+  const updatePosition = (element: HTMLInputElement | HTMLTextAreaElement | HTMLElement) => {
     const { left, top } = offset(element);
     return {
       x: left + window.scrollX,
@@ -117,7 +117,11 @@ const useSlashCommandDetection = () => {
   const handleInput = (event: Event) => {
     const target = event.target as HTMLElement;
 
-    const isValidInput = (element: HTMLElement): element is HTMLInputElement | HTMLTextAreaElement => {
+    const isValidInput = (element: HTMLElement): element is HTMLInputElement | HTMLTextAreaElement | HTMLElement => {
+      if (element.contentEditable === "true") {
+        return true;
+      }
+
       switch (element.tagName) {
         case "TEXTAREA": return true;
         case "INPUT": {
@@ -129,13 +133,16 @@ const useSlashCommandDetection = () => {
       }
     };
 
+    console.log(isValidInput(target))
+
     // if target is not valid or not focused, don't show the dropdown
     if (!target || !isValidInput(target) || target !== document.activeElement) {
       setState(prev => ({ ...prev, visible: false, search: "" }));
       return;
     }
 
-    const { found, command } = extractSlashCommand(target.value);
+    const value = target.contentEditable === "true" ? target.textContent || "" : (target as HTMLInputElement | HTMLTextAreaElement).value;
+    const { found, command } = extractSlashCommand(value);
 
     if (found) {
       const position = updatePosition(target);
@@ -224,9 +231,26 @@ export const App = () => {
     setState(prev => ({ ...prev, selectedIndex: 0 }));
   }, [searchedCommands.length]);
 
-  const setCursorPosition = (element: HTMLInputElement | HTMLTextAreaElement, position: number) => {
+  const setCursorPosition = (element: HTMLInputElement | HTMLTextAreaElement | HTMLElement, position: number) => {
     try {
-      // TextArea elements always support selection
+      if (element.contentEditable === "true") {
+        const range = document.createRange();
+        const selection = window.getSelection();
+
+        if (element.firstChild) {
+          const textNode = element.firstChild;
+          const maxPosition = Math.min(position, textNode.textContent?.length || 0);
+          range.setStart(textNode, maxPosition);
+          range.setEnd(textNode, maxPosition);
+        }
+
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        element.focus();
+        return;
+      }
+
+      // Handle input and textarea elements
       if (element instanceof HTMLTextAreaElement) {
         element.setSelectionRange(position, position);
         element.focus();
@@ -238,14 +262,12 @@ export const App = () => {
         const selectionSupportedTypes = ["text", "search", "password", "tel"];
 
         if (!selectionSupportedTypes.includes(inputType)) {
-          // For input types like 'email', 'url', etc., just focus without setting cursor
           element.focus();
           return;
         }
       }
 
-      // Set cursor position for supported elements
-      element.setSelectionRange(position, position);
+      (element as HTMLInputElement).setSelectionRange(position, position);
       element.focus();
     } catch (error) {
       console.warn("Failed to set cursor position:", error);
@@ -257,7 +279,9 @@ export const App = () => {
     const { activeElement } = state;
     if (!activeElement) return;
 
-    const value = activeElement.value;
+    const value = activeElement.contentEditable === "true"
+      ? activeElement.textContent || ""
+      : (activeElement as HTMLInputElement | HTMLTextAreaElement).value;
     const slashIndex = value.lastIndexOf("/");
 
     const cursorPlaceholder = "%caret%";
@@ -272,7 +296,11 @@ export const App = () => {
       ? beforeSlash.length + cursorOffsetInReplacement
       : (beforeSlash + cleanedReplacement).length;
 
-    activeElement.value = newValue;
+    if (activeElement.contentEditable === "true") {
+      activeElement.textContent = newValue;
+    } else {
+      (activeElement as HTMLInputElement | HTMLTextAreaElement).value = newValue;
+    }
     setCursorPosition(activeElement, cursorPosition);
 
     setState(prev => ({
