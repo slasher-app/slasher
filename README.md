@@ -72,7 +72,7 @@ bun run test
 
 ## 🤝 Contributing
 
-Contributions are welcome! Check out [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Thanks for considering contributing to Slasher! All contributions are welcome (almost). Please raise an issue describing your idea or bug before submitting a pull request 🙏
 
 ## 📄 License
 
