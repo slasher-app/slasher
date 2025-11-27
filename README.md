@@ -40,7 +40,7 @@ Slasher is a browser extension that brings the power of **slash commands** to an
 
 - 🌐 **Works Everywhere** - Use your text commands on any website - GitHub, Slack, Twitter, and more.
 - ⚡ **Lightning Fast** - Type `/` and instantly insert your saved text snippets. No lag, no waiting.
-- 🎨 **Fully Customizable** - Create your own commands
+- 🎨 **Fully Customizable** - Create unlimited slash commands for any text snippets you need.
 - 🔒 **Privacy First** - Your snippets stay on your device. No cloud storage, no tracking and no account needed.
 
 ## 🛠️ Development
