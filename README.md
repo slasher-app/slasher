@@ -6,7 +6,7 @@
   <h6><em>Slash commands everywhere!</em></h6>
   <h3>
   
-  [_Homepage_](https://slasher-app.github.io/docs) | [_Documentation_](https://slasher-app.github.io/docs/documentation) | [_Issues_](https://github.com/slasher-app/slasher/issues)
+  [_Homepage_](https://slasher-app.com) | [_Documentation_](https://slasher-app.com/documentation) | [_Issues_](https://github.com/slasher-app/slasher/issues)
   
   </h3>
 </div>
