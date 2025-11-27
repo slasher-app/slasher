@@ -27,6 +27,11 @@
 
 </div>
 
+> [!note]
+> 🚧 **Not Yet Released** - Slasher is currently in development and not available in browser stores yet. Stay tuned!
+
+</div>
+
 ## ✨ What is Slasher?
 
 Slasher is a browser extension that brings the power of **slash commands** to any website. Type `/` in any text field to trigger custom commands that help you work faster and smarter.
