@@ -27,14 +27,54 @@
 
 </div>
 
-## What is Slasher?
+## ✨ What is Slasher?
 
-Slasher is a web extension that allows users to easily create and manage slash commands! It provides a simple and intuitive interface for creating and managing slash commands, making it easy to add powerful functionality to any website of your choice.
+Slasher is a browser extension that brings the power of **slash commands** to any website. Type `/` in any text field to trigger custom commands that help you work faster and smarter.
 
-## Contributing
+### Key Features
 
-Thanks for considering contributing to Slasher! See [CONTRIBUTING](CONTRIBUTING.md) for details.
+- 🌐 **Works Everywhere** - Use your text commands on any website - GitHub, Slack, Twitter, and more.
+- ⚡ **Lightning Fast** - Type `/` and instantly insert your saved text snippets. No lag, no waiting.
+- 🎨 **Fully Customizable** - Create your own commands
+- 🔒 **Privacy First** - Your snippets stay on your device. No cloud storage, no tracking and no account needed.
 
-## License
+## 🛠️ Development
 
-[MIT License](LICENSE).
+Built with modern web technologies:
+
+- [WXT](https://wxt.dev/) - Web extension framework
+- [React](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Bun](https://bun.com/)
+
+### Getting Started
+
+```bash
+# Install dependencies
+bun install
+
+# Development mode
+bun run dev              # Chrome
+bun run dev:firefox      # Firefox
+
+# Build for production
+bun run build            # Chrome
+bun run build:firefox    # Firefox
+
+# Run tests
+bun run test
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Check out [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## 📄 License
+
+MIT © [2025](LICENSE)
+
+# 
+
+<div align="center">
+  <sub>Built by <a href="https://github.com/peterphmikkelsen">@peterphmikkelsen</a></sub>
+</div>
