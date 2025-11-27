@@ -10,7 +10,12 @@
     "build": "wxt build",
     "build:firefox": "wxt build -b firefox",
     "zip": "wxt zip",
+    "zip:production": "wxt zip --mode production",
     "zip:firefox": "wxt zip -b firefox",
+    "zip:firefox:production": "wxt zip -b firefox --mode production",
+    "submit:init": "wxt submit init",
+    "submit:dry-run": "wxt submit --dry-run --chrome-zip .output/slasher-0.0.0-chrome.zip --firefox-zip .output/slasher-0.0.0-firefox.zip --firefox-sources-zip .output/slasher-0.0.0-sources.zip",
+    "submit:submit": "wxt submit --chrome-zip .output/slasher-0.0.0-chrome.zip --firefox-zip .output/slasher-0.0.0-firefox.zip --firefox-sources-zip .output/slasher-0.0.0-sources.zip",
     "test": "bun run build && bun run build:firefox && bunx playwright test",
     "compile": "tsc --noEmit",
     "postinstall": "wxt prepare"
@@ -25,10 +30,10 @@
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
-    "@playwright/test": "^1.56.1",
+    "@playwright/test": "^1.57.0",
     "@types/chrome": "^0.0.280",
     "@types/micromatch": "^4.0.10",
-    "@types/react": "^19.2.6",
+    "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@wxt-dev/module-react": "^1.1.5",
     "typescript": "^5.9.3",
