@@ -12,7 +12,7 @@
 </div>
 
 <div align="center">
-  <img height="50" alt="firefox" src="assets/firefox.png" />
+  <a href="https://addons.mozilla.org/en-US/firefox/addon/slasher-app/" target="_blank" rel="noopener noreferrer"><img height="50" alt="firefox" src="assets/firefox.png" /></a>
   &emsp;
   <img height="50" alt="chrome" src="assets/chrome.png" />
   &emsp;
